@@ -37,7 +37,6 @@ public class DatabaseServiceImpl implements DatabaseService{
          String id = "kgitbank";
          String pw = "itbank";
          dbConn = DriverManager.getConnection(URL, id, pw);
-         System.out.println("¿À¶óÅ¬ ¿¬°á ¼º°ø");
       }catch (Exception e) {
          e.printStackTrace();
          return false;
@@ -57,7 +56,7 @@ public class DatabaseServiceImpl implements DatabaseService{
          prep.setString(6, member.getAccNum());
          prep.setLong(7, member.getMoney()); 
 
-         System.out.println("È¸¿ø µî·Ï ¿Ï·á");
+         System.out.println("íšŒì› ë“±ë¡ ì™„ë£Œ");
          prep.executeUpdate();
       } catch(SQLException e) {
          e.printStackTrace();
@@ -65,28 +64,31 @@ public class DatabaseServiceImpl implements DatabaseService{
 
    }
    
-   // ·Î±×ÀÎ ÁøÇà½Ã ¾ÆÀÌµğ Á¸ÀçÈ®ÀÎ
-   @Override
-   public boolean IdEnter(String id, String pw) {
+   // ë¡œê·¸ì¸ì‹œ ì•„ì´ë”” ì¡´ì¬ì—¬ë¶€ í™•ì¸ ë°‘ ë¡œê·¸ì¸ ê¸°ëŠ¥
+   public boolean Login(String id, String pw) {
+
+      if (Select(id, pw) && IdEnter(id)) {
+         return true;
+      } else {
+         return false;
+      }
+   }
+
+   // ë¡œê·¸ì¸ ì‹œ ì•„ì´ë””ì™€ íŒ¨ìŠ¤ì›Œë“œ ì¼ì¹˜ í™•ì¸
+   public boolean Select(String id, String pw) {
       boolean result = true;
+
       CommonService commonSrv = new CommonServiceImpl();
 
       try {
-         PreparedStatement prep = dbConn.prepareStatement(LOGIN);
-         PreparedStatement prep2 = dbConn.prepareStatement(LOGINSQL);
+         PreparedStatement prep = dbConn.prepareStatement(LOGINSQL);
          prep.setString(1, id);
-         
-         prep2.setString(1, id);
-         prep2.setString(2, pw);
+         prep.setString(2, pw);
 
          ResultSet rs = prep.executeQuery();
-         ResultSet rs2 = prep2.executeQuery();
          if(rs.next()) {
-            if(rs.getInt(1) == 0) {
-               commonSrv.InfoMsg("ÇØ´ç ¾ÆÀÌµğ´Â Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.", "´Ù½ÃÇÑ¹ø È®ÀÎÇØÁÖ¼¼¿ä.");
-               result = false;
-            } else if (rs2.getInt(1)!= 0) {
-               commonSrv.InfoMsg("È¸¿ø Á¤º¸°¡ ÀÏÄ¡ÇÏÁö ¾Ê½À´Ï´Ù.", "´Ù½ÃÇÑ¹ø È®ÀÎÇØÁÖ¼¼¿ä.");
+            if(rs.getInt(1)==0) {
+               commonSrv.InfoMsg("ì…ë ¥í•˜ì‹  ì •ë³´ê°€ í‹€ë¦½ë‹ˆë‹¤.", "IDì™€ íŒ¨ìŠ¤ì›Œë“œë¥¼ ë‹¤ì‹œ í™•ì¸í•´ì£¼ì„¸ìš”.");
                result = false;
             }
             rs.close();
@@ -98,8 +100,33 @@ public class DatabaseServiceImpl implements DatabaseService{
 
       return result;
    }
-   
-   // ¾ÆÀÌµğ Áßº¹ È®ÀÎ
+
+   // ë¡œê·¸ì¸ ì§„í–‰ì‹œ ì•„ì´ë”” ì¡´ì¬í™•ì¸
+   public boolean IdEnter(String id) {
+      boolean result = true;
+      CommonService commonSrv = new CommonServiceImpl();
+
+      try {
+         PreparedStatement prep = dbConn.prepareStatement(LOGIN);
+         prep.setString(1, id);
+
+         ResultSet rs = prep.executeQuery();
+         if(rs.next()) {
+            if(rs.getInt(1) == 0) {
+               commonSrv.InfoMsg("í•´ë‹¹ ì•„ì´ë””ëŠ” ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", "ë‹¤ì‹œí•œë²ˆ í™•ì¸í•´ì£¼ì„¸ìš”.");
+               result = false;
+            }
+            rs.close();
+         } 
+      } catch (SQLException e) {
+         result = false;
+         e.printStackTrace();
+      }
+
+      return result;
+   }
+
+   // ì•„ì´ë”” ì¤‘ë³µ í™•ì¸
    @Override
    public boolean IdCopy(String id) {
       boolean result = true;
@@ -112,7 +139,7 @@ public class DatabaseServiceImpl implements DatabaseService{
          if(rs.next()) {
             if(rs.getInt(1) != 0) {
                CommonService commonSrv = new CommonServiceImpl();
-               commonSrv.InfoMsg("ÀÌ¹Ì µî·ÏµÈ ¾ÆÀÌµğ ÀÔ´Ï´Ù.", "¾ÆÀÌµğ¸¦ ´Ù½Ã ÀÔ·ÂÇÏ¼¼¿ä.");
+               commonSrv.InfoMsg("ì´ë¯¸ ë“±ë¡ëœ ì•„ì´ë”” ì…ë‹ˆë‹¤.", "ì•„ì´ë””ë¥¼ ë‹¤ì‹œ ì…ë ¥í•˜ì„¸ìš”.");
                result = false;
             }
             rs.close();
